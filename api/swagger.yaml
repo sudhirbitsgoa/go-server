@@ -1,0 +1,878 @@
+---
+swagger: "2.0"
+info:
+  description: "Aimsquant api publisher"
+  version: "1.0.0"
+  title: "AimsQuant api"
+  termsOfService: "http://aimsquant.io/terms/"
+  contact:
+    email: "shiv@aimsquant.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: 'localhost:3002'
+basePath: "/api/v2"
+tags:
+- name: "user"
+  description: "Operations about user"
+- name: "thread"
+  description: "operations about thread"
+- name: "strategy"
+  description: "operation about strategy"
+- name: backtest
+  description: operations on backtest
+  externalDocs:
+    description: "Find out more about us"
+    url: "http://aimsquant.io"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /user:
+    post:
+      tags:
+      - "user"
+      summary: "Register user"
+      description: "User registration api."
+      operationId: "regiteruser"
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "User"
+  /user/login:
+    post:
+      tags:
+      - "user"
+      summary: "User Login"
+      description: "User login for all roles. If project_admin tenantName is not required"
+      operationId: "userlogin"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User login description. Check model definition for valid params"
+        required: true
+        schema:
+          $ref: "#/definitions/Login"
+      responses:
+        200:
+          description: "successful login"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "User"
+  /me:
+    get:
+      tags:
+      - 'user'
+      summary: 'get profile of user'
+      operationId: getProfile
+      consumes:
+      - application/json
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: "successful login"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "User"
+  /user/activate:
+    get:
+      tags:
+      - "user"
+      summary: activate user
+      description: activate user
+      operationId: activateUser
+      parameters:
+      - in: query
+        name: code
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+      x-swagger-router-controller: "User"
+  /user/forgotpassword:
+    get:
+      tags:
+      - "user"
+      summary: ask for email as parameter
+      description: forgot password api
+      produces:
+      - application/json
+      operationId: forgotPassword
+      parameters:
+      - in: query
+        name: email
+        required: true
+        type: string
+        format: email
+      x-swagger-router-controller: "User"
+      responses:
+        200:
+          description: OK
+  /user/setpassword:
+    post:
+      tags:
+      - "user"
+      summary: reset password by validating with the code
+      description: reset password
+      operationId: resetPassword
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/resetpassword'
+      x-swagger-router-controller: "User"
+      responses:
+        200:
+          description: OK
+        400:
+          description: code is not valid
+  /thread:
+    post:
+      tags:
+      - thread
+      summary: post a thread
+      description: post a new thread
+      operationId: createThread
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/Thread'
+      responses:
+        200:
+          description: OK
+        400:
+          description: 'Invalid input'
+      x-swagger-router-controller: "Thread"
+    get:
+      tags:
+      - thread
+      summary: get all threads
+      description: get all threads
+      operationId: getThreads
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: q
+        in: query
+        description: search term
+        required: false
+        type: string
+      - name: category
+        in: query
+        description: this search by category
+        required: false
+        type: string
+      - name: personal
+        in: query
+        required: false
+        type: boolean
+        default: false
+      - name: skip
+        in: query
+        description: skip number of records
+        required: true
+        default: 0
+        type: number
+      - name: limit
+        type: number
+        required: true
+        in: query
+        default: 10
+      - name: order_param
+        type: string
+        required: true
+        in: query
+        default: createdAt
+      - name: order
+        type: number
+        required: true
+        in: query
+        default: 0
+      responses:
+        200:
+          description: OK
+        400:
+          description: 'Invalid input'
+      x-swagger-router-controller: "Thread"
+
+
+  /thread/{threadId}:
+    post:
+      tags:
+      - thread
+      summary: reply to a thread
+      description: reply to a thread
+      operationId: replyToThread
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - in: path
+        name: threadId
+        type: string
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            markdownText:
+              type: string
+              default: 'reply'
+      responses:
+        200:
+          description: OK
+      x-swagger-router-controller: "Thread"
+    get:
+      tags:
+      - thread
+      summary: post a thread
+      description: get thread details
+      operationId: getThread
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - in: path
+        name: threadId
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+        400:
+          description: 'Invalid input'
+      x-swagger-router-controller: "Thread"
+  /thread/{threadId}/like:
+    post:
+      tags:
+      - 'thread'
+      summary: like a thread
+      description: like a thread
+      operationId: likeThread
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - in: path
+        name: threadId
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+      x-swagger-router-controller: "Thread"
+  /thread/{threadId}/view:
+    post:
+      tags:
+      - 'thread'
+      summary: view a thread
+      description: view a thread
+      operationId: viewThread
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - in: path
+        name: threadId
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+      x-swagger-router-controller: "Thread"
+  /thread/{threadId}/follow:
+    post:
+      tags:
+      - 'thread'
+      summary: like a thread
+      description: like a thread
+      operationId: followThread
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - in: path
+        name: threadId
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+      x-swagger-router-controller: "Thread"
+  /strategy:
+    post:
+      tags:
+      - "strategy"
+      summary: create a new strategy
+      description: create a new financial strategy
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      operationId: createStrategy
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: "#/definitions/Strategy"
+      responses:
+        200:
+          description: "created strategy"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Strategy"
+    get:
+      tags:
+      - strategy
+      summary: get strategy
+      description:  get strategies of user
+      operationId: getStrategys
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: search
+        in: query
+        description: search strategy by name or description
+        type: string
+        required: false
+      responses:
+        200:
+          description: "strategies"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Strategy"
+  /strategy/{id}:
+    get:
+      tags:
+      - strategy
+      summary: get strategy
+      description:  get strategies of user
+      operationId: getStrategy
+      security:
+      - api_key: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      responses:
+        200:
+          description: "strategies"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Strategy"
+    put:
+      tags:
+      - strategy
+      summary: update strategy
+      description: update the strategy
+      consumes:
+      - application/json
+      operationId: updateStrategy
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: id
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Strategy'
+      responses:
+        200:
+          description: "created strategy"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Strategy"
+    delete:
+      tags:
+      - strategy
+      summary: get strategy
+      description:  get strategies of user
+      operationId: deleteStrategy
+      security:
+      - api_key: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      responses:
+        200:
+          description: "strategies"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Strategy"
+  /strategy/{id}/exec:
+    post:
+      summary: executes the strategy and outputs the data
+      description: execute the strategy
+      tags:
+      - strategy
+      operationId: execStrategy
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: id
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: "#/definitions/Backtest"
+      responses:
+        200:
+          description: "created strategy"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Strategy"
+  /strategy/{id}/backtests:
+#    post:
+#      tags:
+#      - "backtest"
+#      summary: create a new strategy
+#      description: create a new financial strategy
+#      consumes:
+#      - "application/json"
+#      produces:
+#      - "application/json"
+#      operationId: createBacktest
+#      security:
+#      - api_key: []
+#      parameters:
+#      - name: "aimsquant-token"
+#        in: "header"
+#        description: "auth token"
+#        type: "string"
+#        required: true
+#      - name: id
+#        in: path
+#        required: true
+#        type: string
+#      - name: body
+#        in: body
+#        required: true
+#        schema:
+#          $ref: "#/definitions/Backtest"
+#      responses:
+#        200:
+#          description: "created backtest"
+#        400:
+#          description: "Not Authorized"
+#          schema:
+#            $ref: "#/definitions/Error"
+#      x-swagger-router-controller: "Backtest"
+    get:
+      tags:
+      - backtest
+      summary: get all backtest results of a strategy
+      description: backtest of a strategy
+      operationId: getBackTests
+      security:
+      - api_key: []
+      parameters:
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: id
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "created strategy"
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Backtest"
+  /backtest/{id}:
+    get:
+      tags:
+      - backtest
+      summary: get the backtest
+      operationId: getBackTest
+      security:
+      - api_key: []
+      parameters:
+      - name: aimsquant-token
+        in: header
+        description: auth token
+        type: string
+        required:  true
+      - name: id
+        type: string
+        required: true
+        in: path
+      responses:
+        200:
+          description: backtest object
+          schema:
+            $ref: '#/definitions/Backtest'
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Backtest"
+    delete:
+      tags:
+      - backtest
+      summary: delete the backtest
+      operationId: deleteBackTest
+      security:
+      - api_key: []
+      parameters:
+      - name: aimsquant-token
+        in: header
+        description: auth token
+        type: string
+        required:  true
+      - name: id
+        type: string
+        required: true
+        in: path
+      responses:
+        200:
+          description: 'deleted'
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Backtest"
+  /backtest/share/{id}:
+    post:
+      tags:
+      - backtest
+      summary: get the backtest
+      operationId: shareBackTest
+      security:
+      - api_key: []
+      parameters:
+      - name: aimsquant-token
+        in: header
+        description: auth token
+        type: string
+        required:  true
+      - name: id
+        type: string
+        required: true
+        in: path
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Share'
+      responses:
+        200:
+          description: backtest object
+          schema:
+            $ref: '#/definitions/Backtest'
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Backtest"
+  /backtest/share:
+    get:
+      tags:
+      - backtest
+      summary: get the backtest
+      operationId: getCommunityBackTest
+      security:
+      - api_key: []
+      parameters:
+      - name: aimsquant-token
+        in: header
+        description: auth token
+        type: string
+        required:  true
+      responses:
+        200:
+          description: backtest object
+          schema:
+            $ref: '#/definitions/Backtest'
+        400:
+          description: "Not Authorized"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Backtest"
+  /strategy/code/{id}:
+    post:
+      summary: Upload file having code
+      description: Upload strategy code
+      tags:
+      - "strategy"
+      consumes:
+      - multipart/form-data
+      - application/x-www-form-urlencoded
+      operationId: uploadStrategyCode
+      security:
+      - api_key: []
+      parameters:
+      - name: file
+        in: formData
+        description: The uploaded file data
+        required: true
+        type: file
+      - name: "aimsquant-token"
+        in: "header"
+        description: "auth token"
+        type: "string"
+        required: true
+      - name: id
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: code is not valid
+      x-swagger-router-controller: "Strategy"
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: aimsquant-token
+    in: header
+definitions:
+  User:
+    type: "object"
+    properties:
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      photo:
+        type: "string"
+      aboutme:
+        type: "string"
+      education:
+        type: "string"
+      profession:
+        type: "string"
+  Login:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+      password:
+        type: "string"
+  Thread:
+    type: object
+    required:
+    - category
+    - title
+    - markdownText
+    properties:
+      category:
+        type: string
+        enum:
+        - "Share your idea"
+        - "Questions and answers"
+        - "News and announcements"
+      title:
+        type: string
+      markdownText:
+        type: string
+  resetpassword:
+    type: object
+    required:
+    - password1
+    - password2
+    - code
+    properties:
+      password1:
+        type: "string"
+      password2:
+        type: "string"
+      code:
+        type: "string"
+        format: "uuid"
+  userId:
+    type: object
+    required:
+    - userId
+    properties:
+      userId:
+        type: string
+        format: uuid
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+      message:
+        type: "string"
+
+# strategy definitions
+  Strategy:
+    type: object
+    required:
+    - name
+    - type
+    - language
+    - description
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      language:
+        type: string
+        enum: ['python', 'nodejs', 'java']
+      description:
+        type: string
+      code:
+        type: string
+#      settings:
+#        $ref: "#/definitions/Setting"
+
+  Backtest:
+    type: object
+    required:
+    - start
+    - end
+    - capital
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+        type: string
+        format: date-time
+      capital:
+        type: number
+      plan:
+        type: string
+  Share:
+    type: object
+    required:
+    - thread_id
+    properties:
+      thread_id:
+        type: string
+
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
