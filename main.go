@@ -18,11 +18,10 @@ import (
 )
 
 func main() {
-	log.Printf("Server started")
-
 	router := sw.NewRouter()
-	sy.Iterator()
-	sy.CPUIterator()
+	go sy.Iterator()    // enables concurrency
+	go sy.CPUIterator() // enables concurrency
 	cache.RedisConnect()
+	log.Printf("Server started")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -22,8 +22,8 @@ func readcpu() []float64 {
 }
 
 func CPUIterator() {
-	c := time.Tick(time.Second)
-	for now := range c {
-		fmt.Println(now, readcpu())
+	for {
+		time.Sleep(time.Second)
+		fmt.Println(time.Now(), readcpu())
 	}
 }
