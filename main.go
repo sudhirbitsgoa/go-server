@@ -12,9 +12,9 @@ import (
 	"log"
 	"net/http"
 
-	cache "server/cache"
-	sw "server/mylib"
-	sy "server/system"
+	cache "go-server/cache"
+	sw "go-server/mylib"
+	sy "go-server/system"
 )
 
 func main() {
