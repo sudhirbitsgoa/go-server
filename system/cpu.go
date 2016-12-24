@@ -1,7 +1,7 @@
 package system
 
 import (
-	"fmt"
+	redis "server/cache"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -10,20 +10,14 @@ import (
 /**
   This will read system memory
 **/
-func readcpu() []float64 {
+func readcpu() {
 	v, _ := cpu.Percent(0, false)
-
-	// almost every return value is a struct
-	// fmt.Printf("Total: %v, Free:%v, UsedPercent:%f%%\n", v., v.Free, v.UsedPercent)
-
-	// convert to JSON. String() is also implemented
-	// fmt.Println("this is cool", v)
-	return v
+	redis.Client.LPush("cpuusage", v[0])
 }
 
 func CPUIterator() {
 	for {
 		time.Sleep(time.Second)
-		fmt.Println(time.Now(), readcpu())
+		readcpu()
 	}
 }

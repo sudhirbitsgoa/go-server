@@ -1,7 +1,7 @@
 package system
 
 import (
-	"fmt"
+	redis "server/cache"
 	"time"
 
 	"github.com/shirou/gopsutil/mem"
@@ -10,14 +10,14 @@ import (
 /**
   This will read system memory
 **/
-func readmemory() *mem.VirtualMemoryStat {
+func readmemory() {
 	v, _ := mem.VirtualMemory()
-	return v
+	redis.Client.LPush("memoryusage", v.UsedPercent)
 }
 
 func Iterator() {
 	for {
 		time.Sleep(time.Second)
-		fmt.Print(time.Now(), readmemory())
+		readmemory()
 	}
 }
