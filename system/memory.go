@@ -1,7 +1,7 @@
 package system
 
 import (
-	redis "server/cache"
+	redis "go-server/cache"
 	"time"
 
 	"github.com/shirou/gopsutil/mem"
