@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	sy "go-server/system"
+
 	"github.com/gorilla/mux"
+	"golang.org/x/net/websocket"
 )
 
 type Route struct {
@@ -18,6 +21,9 @@ type Routes []Route
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
+	// fs := http.StripPrefix("/", http.FileServer(http.Dir("../client/")))
+	// http.Handle("/", fs)
+	// http.Handle("/ws", websocket.Handler(sy.EchoWS))
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
@@ -29,11 +35,14 @@ func NewRouter() *mux.Router {
 			Name(route.Name).
 			Handler(handler)
 	}
+	router.PathPrefix("/ws").Handler(websocket.Handler(sy.EchoWS))
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("client/"))))
 
 	return router
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
+	// http.StripPrefix("/", http.FileServer(http.Dir("client/")))
 	fmt.Fprintf(w, "Hello World!")
 }
 
@@ -43,6 +52,13 @@ var routes = Routes{
 		"GET",
 		"/api/v2/",
 		Index,
+	},
+
+	Route{
+		"ReadCpu",
+		"GET",
+		"/api/v2/cpu",
+		sy.EchoCPU,
 	},
 
 	Route{
