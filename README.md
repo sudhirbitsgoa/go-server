@@ -1,4 +1,4 @@
-# Go API Server for 
+# Go API Server for
 
 go Server api publisher
 
@@ -23,3 +23,5 @@ To run the server, follow these simple steps:
 go run main.go
 ```
 
+Point to localhost:8080
+Will open chat window which is based on ws

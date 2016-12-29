@@ -61,11 +61,29 @@ func EchoWS(ws *websocket.Conn) {
 
 		fmt.Println("Received back from client: " + reply)
 
-		msg := "Received:  " + reply
+		msg := reply
 		fmt.Println("Sending to client: " + msg)
-		if err = websocket.Message.Send(ws, msg); err != nil {
-			fmt.Println("Can't send")
-			break
+
+		switch msg {
+		case "cpu":
+			for {
+				time.Sleep(time.Second)
+				per, error := redis.Client.RPop("cpuusage").Result()
+				if error != nil {
+					fmt.Print("some error")
+				} else {
+					fmt.Println(per)
+					if err = websocket.Message.Send(ws, per); err != nil {
+						fmt.Println("Can't send", err)
+						break
+					}
+				}
+			}
+		default:
+			if err = websocket.Message.Send(ws, msg); err != nil {
+				fmt.Println("Can't send")
+				break
+			}
 		}
 	}
 }
