@@ -4,6 +4,7 @@ import (
 	"fmt"
 	redis "go-server/cache"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -48,6 +49,12 @@ func EchoCPU(w http.ResponseWriter, r *http.Request) {
 	// }
 }
 
+type message struct {
+	// the json tag means this will serialize as a lowercased field
+	TimeStamp time.Time `json:"timeStamp"`
+	Perct     float64   `json:"perct"`
+}
+
 func EchoWS(ws *websocket.Conn) {
 	var err error
 
@@ -72,10 +79,18 @@ func EchoWS(ws *websocket.Conn) {
 				if error != nil {
 					fmt.Print("some error")
 				} else {
-					fmt.Println(per)
-					if err = websocket.Message.Send(ws, per); err != nil {
-						fmt.Println("Can't send", err)
-						break
+					per, er := strconv.ParseFloat(per, 64)
+					value := message{
+						Perct:     per,
+						TimeStamp: time.Now(),
+					}
+					// jsonValue, eerr := json.Marshal(value)
+					if er == nil {
+						// fmt.Println(value)
+						if err = websocket.JSON.Send(ws, value); err != nil {
+							fmt.Println("Can't send", err)
+							break
+						}
 					}
 				}
 			}
