@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	sy "go-server/system"
+	wsroutes "go-server/wsroutes"
 
 	"github.com/gorilla/mux"
 	"golang.org/x/net/websocket"
@@ -35,7 +35,7 @@ func NewRouter() *mux.Router {
 			Name(route.Name).
 			Handler(handler)
 	}
-	router.PathPrefix("/ws").Handler(websocket.Handler(sy.EchoWS))
+	router.PathPrefix("/ws").Handler(websocket.Handler(wsroutes.RoutesHandler))
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("client/"))))
 
 	return router
@@ -52,13 +52,6 @@ var routes = Routes{
 		"GET",
 		"/api/v2/",
 		Index,
-	},
-
-	Route{
-		"ReadCpu",
-		"GET",
-		"/api/v2/cpu",
-		sy.EchoCPU,
 	},
 
 	Route{
