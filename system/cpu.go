@@ -3,7 +3,6 @@ package system
 import (
 	"fmt"
 	redis "go-server/cache"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -24,29 +23,6 @@ func CPUIterator() {
 		time.Sleep(time.Second)
 		readcpu()
 	}
-}
-
-func EchoCPU(w http.ResponseWriter, r *http.Request) {
-	// fmt.Print("this is called")
-	// c, err := websocket.Upgrade(w, r, nil, 1024, 1024)
-	// if err != nil {
-	// 	log.Print("upgrade:", err)
-	// 	return
-	// }
-	// defer c.Close()
-	// for {
-	// 	mt, message, err := c.ReadMessage()
-	// 	if err != nil {
-	// 		log.Println("read:", err)
-	// 		break
-	// 	}
-	// 	log.Printf("recv: %s", message)
-	// 	err = c.WriteMessage(mt, message)
-	// 	if err != nil {
-	// 		log.Println("write:", err)
-	// 		break
-	// 	}
-	// }
 }
 
 type message struct {
