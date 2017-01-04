@@ -7,8 +7,11 @@ import {MetricServiceService} from '../metric-service.service'
   styleUrls: ['./line-chart.component.css'],
   providers: [MetricServiceService]
 })
-
-export class LineChartComponent {
+export class LineChartComponent implements OnInit {
+  private metricService: MetricServiceService;
+  constructor(metricService: MetricServiceService) {
+      this.metricService = metricService;
+  }
   // lineChart
   public lineChartData: Array<any> = [
     { data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A' },
@@ -21,29 +24,32 @@ export class LineChartComponent {
     responsive: true
   };
   ngOnInit() {
-    (function(self) {
-      var conn;
-      // var msg = $("#msg");
-      // var log = $("#log");
-      if (window["WebSocket"]) {
-        conn = new WebSocket("ws://localhost:8080/ws");
-        conn.onopen = function () {
-            conn.send('cpu');
-        }
-        conn.onclose = function(evt) {
-          // appendLog($("<div><b>Connection closed.</b></div>"))
-        }
-        conn.onmessage = function(evt) {
-          console.log(evt.data)
-          let data = JSON.parse(evt.data);
-          self.lineChartData[0].data.push(data.perct);
-
-          // appendLog($("<pre/>").text(evt.data))
-        }
-      } else {
-        // appendLog($("<div><b>Your browser does not support WebSockets.</b></div>"))
-      }
-    })(this);
+    this.metricService.GetCPUMEMMetric(data => {
+        console.log('this is data', data);
+    });
+    // (function(self) {
+    //   var conn;
+    //   // var msg = $("#msg");
+    //   // var log = $("#log");
+    //   if (window["WebSocket"]) {
+    //     conn = new WebSocket("ws://localhost:8080/ws");
+    //     conn.onopen = function () {
+    //         conn.send('cpu');
+    //     }
+    //     conn.onclose = function(evt) {
+    //       // appendLog($("<div><b>Connection closed.</b></div>"))
+    //     }
+    //     conn.onmessage = function(evt) {
+    //       console.log(evt.data)
+    //       let data = JSON.parse(evt.data);
+    //       self.lineChartData[0].data.push(data.perct);
+    //
+    //       // appendLog($("<pre/>").text(evt.data))
+    //     }
+    //   } else {
+    //     // appendLog($("<div><b>Your browser does not support WebSockets.</b></div>"))
+    //   }
+    // })(this);
   }
   public lineChartColors: Array<any> = [
     { // grey
@@ -75,7 +81,7 @@ export class LineChartComponent {
   public lineChartType: string = 'line';
 
   public randomize(): void {
-    // this.getCPUMEMMetric()
+
     let _lineChartData: Array<any> = new Array(this.lineChartData.length);
     for (let i = 0; i < this.lineChartData.length; i++) {
       _lineChartData[i] = { data: new Array(this.lineChartData[i].data.length), label: this.lineChartData[i].label };
