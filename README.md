@@ -23,5 +23,7 @@ To run the server, follow these simple steps:
 go run main.go
 ```
 
-Point to localhost:8080
-Will open chat window which is based on ws
+http://localhost:8080
+Will load realtime cpu usage screen
+
+cd monitIT has client code

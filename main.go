@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	cache "go-server/cache"
 	sw "go-server/mylib"
 	sy "go-server/system"
+	"log"
+	"net/http"
+	"time"
 )
 
 func main() {
@@ -14,8 +14,23 @@ func main() {
 	go sy.Iterator()    // enables concurrency
 	go sy.CPUIterator() // enables concurrency
 	cache.RedisConnect()
+	test()
 	log.Printf("Server started")
 	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+func channel(c chan string) {
+	time.Sleep(time.Second * 2)
+	c <- "sudhir"
+}
+
+func test() {
+	ch := make(chan string, 1)
+	go channel(ch)
+	inp := <-ch
+	for inp != "sudhir" {
+		log.Println("blocking code")
+	}
 }
 
 // func makeChan() {
