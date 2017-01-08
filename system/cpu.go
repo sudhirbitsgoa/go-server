@@ -32,28 +32,34 @@ type message struct {
 	Perct     float64   `json:"perct"`
 }
 
-func SendCPUWb(ws *websocket.Conn) {
+func SendCPUWb(ws *websocket.Conn, ch chan bool) {
 	var err error
 	for {
-		time.Sleep(time.Second)
-		per, error := redis.Client.RPop("cpuusage").Result()
-		if error != nil {
-			fmt.Print("some error")
-		} else {
-			per, er := strconv.ParseFloat(per, 64)
-			value := message{
-				Perct:     per,
-				Metric:    "cpuusage",
-				TimeStamp: time.Now(),
-			}
-			// jsonValue, eerr := json.Marshal(value)
-			if er == nil {
-				// fmt.Println(value)
-				if err = websocket.JSON.Send(ws, value); err != nil {
-					fmt.Println("Can't send", err)
-					break
+		select {
+		case <-ch:
+			return
+		default:
+			time.Sleep(time.Second)
+			per, error := redis.Client.RPop("cpuusage").Result()
+			if error != nil {
+				fmt.Print("some error")
+			} else {
+				per, er := strconv.ParseFloat(per, 64)
+				value := message{
+					Perct:     per,
+					Metric:    "cpuusage",
+					TimeStamp: time.Now(),
+				}
+				// jsonValue, eerr := json.Marshal(value)
+				if er == nil {
+					fmt.Println(value)
+					if err = websocket.JSON.Send(ws, value); err != nil {
+						fmt.Println("Can't send", err)
+						break
+					}
 				}
 			}
+
 		}
 	}
 }

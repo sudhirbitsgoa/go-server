@@ -8,6 +8,7 @@ import (
 )
 
 func RoutesHandler(ws *websocket.Conn) {
+	ch := make(chan bool, 1)
 	var err error
 	for {
 		var reply string
@@ -21,8 +22,11 @@ func RoutesHandler(ws *websocket.Conn) {
 		fmt.Println("Sending to client: " + msg)
 
 		switch msg {
+		case "stop":
+			ch <- true
 		case "cpu":
-			go sy.SendCPUWb(ws)
+			fmt.Println("cpu did not come here")
+			go sy.SendCPUWb(ws, ch)
 		case "memory":
 			go sy.SendMemoryWb(ws)
 		default:
