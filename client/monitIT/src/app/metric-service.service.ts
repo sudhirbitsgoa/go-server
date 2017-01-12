@@ -8,26 +8,9 @@ export class MetricServiceService {
       this.ws = new WebSocket("ws://localhost:8080/ws");
   }
   GetCPUMEMMetric(cb) {
-    // this.ws.onMessage((evt: MessageEvent) => {
-    //     cb(evt.data);
-    // })
-    // this.ws.onMessageHandler((evt: MessageEvent) => {
-    //     console.log('whats wrong')
-    // })
-    // this.ws.send('cpu')//.subscribe(
-    //     (msg)=> {
-    //         console.log("next", msg.data);
-    //         cb(msg.data);
-    //     },
-    //     (msg)=> {
-    //         console.log("error", msg);
-    //     },
-    //     ()=> {
-    //         console.log("complete");
-    //     })
-    // this.ws.send('cpu');
     this.ws.onopen = () => {
         this.ws.send('cpu');
+        this.ws.send('memory');
     }
     this.ws.onclose = function(evt) {
       // appendLog($("<div><b>Connection closed.</b></div>"))

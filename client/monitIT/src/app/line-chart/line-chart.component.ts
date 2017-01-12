@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import {MetricServiceService} from '../metric-service.service'
 
 @Component({
@@ -8,6 +8,7 @@ import {MetricServiceService} from '../metric-service.service'
   providers: [MetricServiceService]
 })
 export class LineChartComponent implements OnInit {
+  @Input() metric: string;
   private metricService: MetricServiceService;
   private grapData: Array<Number>
   private timeStamp: Array<any>
@@ -33,7 +34,9 @@ export class LineChartComponent implements OnInit {
         let date = new Date(data.timeStamp);
         this.timeStamp.push(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
         // this.lineChartData[0].data.push(data.perct);
-        this.lineChartData =  [{ data: this.grapData, label: data.metric }];
+        if (data.metric === this.metric) {
+            this.lineChartData =  [{ data: this.grapData, label: data.metric }];
+        }
         this.lineChartLabels = this.timeStamp;
     });
   }
