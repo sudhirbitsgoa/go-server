@@ -52,14 +52,12 @@ func SendCPUWb(ws *websocket.Conn, ch chan bool) {
 				}
 				// jsonValue, eerr := json.Marshal(value)
 				if er == nil {
-					fmt.Println(value)
 					if err = websocket.JSON.Send(ws, value); err != nil {
 						fmt.Println("Can't send", err)
 						break
 					}
 				}
 			}
-
 		}
 	}
 }

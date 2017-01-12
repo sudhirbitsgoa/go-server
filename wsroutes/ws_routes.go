@@ -28,7 +28,7 @@ func RoutesHandler(ws *websocket.Conn) {
 			fmt.Println("cpu did not come here")
 			go sy.SendCPUWb(ws, ch)
 		case "memory":
-			go sy.SendMemoryWb(ws)
+			go sy.SendMemoryWb(ws, ch)
 		default:
 			if err = websocket.Message.Send(ws, msg); err != nil {
 				fmt.Println("Can't send")

@@ -32,25 +32,30 @@ type memMessage struct {
 	TimeStamp  time.Time `json:"timeStamp"`
 }
 
-func SendMemoryWb(ws *websocket.Conn) {
+func SendMemoryWb(ws *websocket.Conn, ch chan bool) {
 	var err error
 	for {
-		time.Sleep(time.Second)
-		per, error := redis.Client.RPop("memoryusage").Result()
-		if error != nil {
-			fmt.Print("some error")
-		} else {
-			per, er := strconv.ParseFloat(per, 64)
-			value := memMessage{
-				Percentage: per,
-				Metric:     "memoryusage",
-				TimeStamp:  time.Now(),
-			}
-			if er == nil {
-				// fmt.Println(value)
-				if err = websocket.JSON.Send(ws, value); err != nil {
-					fmt.Println("Can't send", err)
-					break
+		select {
+		case <-ch:
+			return
+		default:
+			time.Sleep(time.Second)
+			per, error := redis.Client.RPop("memoryusage").Result()
+			if error != nil {
+				fmt.Print("some error")
+			} else {
+				per, er := strconv.ParseFloat(per, 64)
+				value := memMessage{
+					Percentage: per,
+					Metric:     "memoryusage",
+					TimeStamp:  time.Now(),
+				}
+				if er == nil {
+					// fmt.Println(value)
+					if err = websocket.JSON.Send(ws, value); err != nil {
+						fmt.Println("Can't send", err)
+						break
+					}
 				}
 			}
 		}
