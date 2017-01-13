@@ -196,7 +196,9 @@ var LineChartComponent = (function () {
             var date = new Date(data.timeStamp);
             _this.timeStamp.push(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds());
             // this.lineChartData[0].data.push(data.perct);
-            _this.lineChartData = [{ data: _this.grapData, label: data.metric }];
+            if (data.metric === _this.metric) {
+                _this.lineChartData = [{ data: _this.grapData, label: data.metric }];
+            }
             _this.lineChartLabels = _this.timeStamp;
         });
     };
@@ -207,6 +209,10 @@ var LineChartComponent = (function () {
     LineChartComponent.prototype.chartHovered = function (e) {
         console.log(e);
     };
+    __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
+        __metadata('design:type', String)
+    ], LineChartComponent.prototype, "metric", void 0);
     LineChartComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-line',
@@ -246,26 +252,9 @@ var MetricServiceService = (function () {
     }
     MetricServiceService.prototype.GetCPUMEMMetric = function (cb) {
         var _this = this;
-        // this.ws.onMessage((evt: MessageEvent) => {
-        //     cb(evt.data);
-        // })
-        // this.ws.onMessageHandler((evt: MessageEvent) => {
-        //     console.log('whats wrong')
-        // })
-        // this.ws.send('cpu')//.subscribe(
-        //     (msg)=> {
-        //         console.log("next", msg.data);
-        //         cb(msg.data);
-        //     },
-        //     (msg)=> {
-        //         console.log("error", msg);
-        //     },
-        //     ()=> {
-        //         console.log("complete");
-        //     })
-        // this.ws.send('cpu');
         this.ws.onopen = function () {
             _this.ws.send('cpu');
+            _this.ws.send('memory');
         };
         this.ws.onclose = function (evt) {
             // appendLog($("<div><b>Connection closed.</b></div>"))
@@ -375,7 +364,7 @@ module.exports = ""
 /***/ 611:
 /***/ function(module, exports) {
 
-module.exports = "<div id=\"log\"><b>Dashboard</b></div>\n<app-line></app-line>\n"
+module.exports = "<div id=\"log\"><b>Dashboard</b></div>\n<app-line metric=\"cpuusage\"></app-line>\n<app-line metric=\"memoryusage\"></app-line>\n"
 
 /***/ },
 
