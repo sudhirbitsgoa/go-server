@@ -30,14 +30,20 @@ export class LineChartComponent implements OnInit {
     this.grapData = []
     this.timeStamp = []
     this.metricService.GetCPUMEMMetric(data => {
-        this.grapData.push(data.perct);
         let date = new Date(data.timeStamp);
-        this.timeStamp.push(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
         // this.lineChartData[0].data.push(data.perct);
         if (data.metric === this.metric) {
-            this.lineChartData =  [{ data: this.grapData, label: data.metric }];
+          this.grapData.push(data.perct || data.percentage);
+          this.timeStamp.push(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+          this.lineChartData =  [
+            {
+              data: this.grapData,
+              label: data.metric
+            }
+          ];
+          this.lineChartLabels = this.timeStamp;
         }
-        this.lineChartLabels = this.timeStamp;
+
     });
   }
   public lineChartColors: Array<any> = [
