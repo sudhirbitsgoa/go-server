@@ -192,14 +192,19 @@ var LineChartComponent = (function () {
         this.grapData = [];
         this.timeStamp = [];
         this.metricService.GetCPUMEMMetric(function (data) {
-            _this.grapData.push(data.perct);
             var date = new Date(data.timeStamp);
-            _this.timeStamp.push(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds());
             // this.lineChartData[0].data.push(data.perct);
             if (data.metric === _this.metric) {
-                _this.lineChartData = [{ data: _this.grapData, label: data.metric }];
+                _this.grapData.push(data.perct || data.percentage);
+                _this.timeStamp.push(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds());
+                _this.lineChartData = [
+                    {
+                        data: _this.grapData,
+                        label: data.metric
+                    }
+                ];
+                _this.lineChartLabels = _this.timeStamp;
             }
-            _this.lineChartLabels = _this.timeStamp;
         });
     };
     // events
